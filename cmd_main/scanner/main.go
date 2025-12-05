@@ -9,6 +9,7 @@ import (
 
 	"github.com/yty0v0/ReconQuiver/internal/discovery/arp_host"
 	"github.com/yty0v0/ReconQuiver/internal/discovery/icmp_host"
+	"github.com/yty0v0/ReconQuiver/internal/discovery/ipv6_host"
 	"github.com/yty0v0/ReconQuiver/internal/discovery/netbios_host"
 	"github.com/yty0v0/ReconQuiver/internal/discovery/oxid_host"
 	"github.com/yty0v0/ReconQuiver/internal/discovery/tcp_host"
@@ -33,6 +34,7 @@ type Config struct {
 	IPList          string // IP列表扫描
 	DiscoveryMode   string // 主机发现模式
 	CustomRulesFile string // 自定义规则文件路径
+	IPV6Host        bool   //是否进行IPV6主机探测
 }
 
 func main() {
@@ -79,6 +81,12 @@ func executePortScan(config *Config) {
 
 // 执行主机发现
 func executeHostDiscovery(config *Config, rate int) {
+	//判断是否执行ipv6探测
+	if config.IPV6Host {
+		ipv6_host.Ipv6_scan()
+		return //执行完直接结束
+	}
+
 	var targets []string
 
 	// 根据不同的目标输入方式获取目标列表
@@ -160,6 +168,7 @@ func parseFlags() *Config {
 	flag.StringVar(&config.IPRange, "E", "", "自定义IP范围探测 (如: 192.168.1.1-100)")
 	flag.StringVar(&config.IPList, "L", "", "自定义IP列表探测 (逗号分隔或文件路径)")
 	flag.StringVar(&config.DiscoveryMode, "m", "ICP", "主机探测模式类型选择: A(ARP),ICP(ICMP-PING),ICA(ICMP-ADDRESSMASK),ICT(ICMP-TIMESTAMP),T(TCP-CONNECT),TS(TCP-SYN),U(UDP),N(NETBIOS),O(OXID) (默认: ICP)")
+	flag.BoolVar(&config.IPV6Host, "6", false, "启用IPV6地址探测")
 
 	// 公共参数
 	flag.IntVar(&config.Rate, "R", 300, "并发扫描次数")
@@ -184,11 +193,12 @@ func parseFlags() *Config {
 		fmt.Println("  -E string        自定义IP范围探测 (如: 192.168.1.1-100)")
 		fmt.Println("  -L string        自定义IP列表探测 (逗号分隔或文件路径)")
 		fmt.Println("  -m string        主机探测模式类型选择: A(ARP),ICP(ICMP-PING),ICA(ICMP-ADDRESSMASK),ICT(ICMP-TIMESTAMP),T(TCP-CONNECT),TS(TCP-SYN),U(UDP),N(NETBIOS),O(OXID) (默认: ICP)")
+		fmt.Println("  -6               启用IPV6地址探测")
 
 		fmt.Println("\n公共选项:")
 		fmt.Println("  -R int           并发扫描次数 (默认选用合适的并发数量，可自行调整)")
 
-		fmt.Println("\n这些模式需要使用root权限运行：TCP-SYN，TCP-ACK，TCP-FIN，TCP-NULL，UDP(主机探测)。")
+		fmt.Println("\n这些模式需要使用root权限运行：TCP-SYN，TCP-ACK，TCP-FIN，TCP-NULL，UDP(主机探测)，ipv6地址探测。")
 
 		fmt.Println("\n端口扫描常用命令:")
 		fmt.Println("  ./reconquiver -t target -A               	   		TCP全端口扫描")
@@ -203,6 +213,7 @@ func parseFlags() *Config {
 		fmt.Println("  ./reconquiver -d -B target -m T                 TCP模式进行C段探测")
 		fmt.Println("  sudo ./reconquiver -d -B target -m TS           TCP-SYN模式进行C段探测")
 		fmt.Println("  sudo ./reconquiver -d -B target -m U            UDP模式进行C段探测")
+		fmt.Println("  sudo ./reconquiver -d -6                        局域网内ipv6探测")
 	}
 
 	flag.Parse()
@@ -211,6 +222,14 @@ func parseFlags() *Config {
 
 // 验证配置参数是否合法
 func validateConfig(config *Config) error {
+	//ipv6探测直接跳过校验
+	if config.IPV6Host {
+		if !config.HostDiscovery {
+			return fmt.Errorf("ipv6探测需要启用主机发现模式 (-d)")
+		}
+		return nil
+	}
+
 	if config.HostDiscovery {
 		// 主机发现模式验证
 		targetModes := 0

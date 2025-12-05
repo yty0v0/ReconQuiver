@@ -19,6 +19,8 @@
 
 包括对主机MAC地址，主机信息(所属厂商，类型，操作系统，主机名)，主机状态，主机存活原因的获取
 
+包括IPV6地址的探测
+
 ## 安装
 ### Linux安装
 直接下载zip压缩包，放到Linux上解压
@@ -71,6 +73,7 @@ sudo ./reconquiver -t target -C -s TA             ACK常见端口扫描
 -E string    自定义IP范围探测 (如: 192.168.1.1-100)
 -L           自定义IP列表探测 (逗号分隔或文件路径)
 -m string    主机探测模式类型选择: A(ARP),ICP(ICMP-PING),ICA(ICMP-ADDRESSMASK),ICT(ICMP-TIMESTAMP),T(TCP-CONNECT),TS(TCP-SYN),U(UDP),N(NETBIOS),O(OXID) (默认: ICP)
+-6           启用IPV6地址探测
 
 主机探测常用命令:
 ./reconquiver -d -B traget -m A                   ARP模式进行C段探测
@@ -78,6 +81,7 @@ sudo ./reconquiver -d -B traget -m ICP            ICMP-PING模式进行C段探�
 ./reconquiver -d -B traget -m T                   TCP模式进行C段探测
 sudo ./reconquiver -d -B traget -m TS             TCP-SYN模式进行C段探测
 sudo ./reconquiver -d -B traget -m U              UDP模式进行C段探测
+sudo ./reconquiver -d -6                          局域网内ipv6探测
 ```
 
 ### 并发设置
