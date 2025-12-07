@@ -546,7 +546,7 @@ func Ipv6_scan() {
 
 	hosts := NewIPv6Discoverer(timeoutSeconds * time.Second).Discover()
 
-	fmt.Println("/n探测结果：")
+	fmt.Println("\n探测结果：")
 	if len(hosts) > 0 {
 		for _, host := range hosts {
 			fmt.Printf("IP: %-50s MAC: %s\n", host.IP, host.MAC)
