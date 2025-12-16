@@ -24,7 +24,20 @@
 包括IPV6地址的探测
 
 ## 安装
-### Linux安装
+### 直接下载编译好的zip压缩包
+解压以后，运行程序查看帮助信息，如果显示帮助信息说明安装成功
+
+Linux
+```
+./reconquiver -h      
+```
+Windows
+```
+reconquiver.exe -h
+```
+也可以自己编译再使用，看下面步骤
+
+### Linux自编译安装
 直接下载zip压缩包，放到Linux上解压
 ```
 unzip ReconQuiver-main.zip
@@ -38,7 +51,7 @@ go build -o reconquiver cmd_main/scanner/main.go
 ```
 ./reconquiver -h
 ```
-### Windows安装
+### Windows自编译安装
 解压以后找到ReconQuiver-main所在目录，通过cmd打开命令行，进入目录并编译
 ```
 cd ReconQuiver-main
